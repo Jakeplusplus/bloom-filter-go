@@ -6,12 +6,13 @@ import (
 	"hash/fnv"
 )
 
-const FilterSize = 1000
-const HashRuns = 3
-const exitCommand = "/quit"
+// Configuration
+const FilterSize = 1000     // FilterSize defines the size of the bloom filter bit array
+const HashRuns = 3          // HashRuns defines the number of hash functions to use
+const ExitCommand = "/quit" // ExitCommand is a string that will cause the program to close
 
 type bloomFilter struct {
-	filter [FilterSize]bool
+	filter [FilterSize]bool // Bit array to store the filter state
 }
 
 func (b *bloomFilter) add(word string) error {
@@ -33,6 +34,8 @@ func (b bloomFilter) contains(word string) (contains bool) {
 }
 
 func (b bloomFilter) hash(word string, seed int) int {
+	// TODO: Replace with a hash function that has an actual seeding option.  Maybe Murmur3.
+	// If sticking to the Go standard library, I think maphash might be the best from the standard library.
 	h := fnv.New32a()
 	h.Write([]byte{byte(seed)})
 	h.Write([]byte(word))
@@ -45,13 +48,13 @@ func main() {
 
 	fmt.Print("Welcome to the bloom filter.  To exit please type \"/quit\"\n")
 
-	for word != exitCommand {
+	for word != ExitCommand {
 		fmt.Print("Enter a word:\n")
 
 		// Get user input
 		fmt.Scanln(&word)
 
-		if word != exitCommand {
+		if word != ExitCommand {
 			// Attempt to add word to bloom filter
 			if err := bloom.add(word); err != nil {
 				fmt.Printf("Failed to add word: %v!\n\n\n", err)
